@@ -4,7 +4,7 @@
  * CONVERSOR AD PARA SENSOR DE TEMPERATURA PT100
  */
 #include<avr/io.h>
-
+void empty(){}
 void setup() {
 
 Serial.begin(9600);
