@@ -4,16 +4,19 @@
  * CONVERSOR AD PARA SENSOR DE TEMPERATURA PT100
  */
 #include<avr/io.h>
-void empty(){}
+
 void setup() {
 
 Serial.begin(9600);
+
+//CONFIGURAR PINO COMO INPUT
+//DDRB = 
 
 //VOLTAGEM DE REFERENCIA A/D 1.1V, AJUSTE PARA DIREITA, ADC0 SELECIONADO
 ADMUX = 0b11000000;
 
 //CONVERSÃO HABILITADA, NAO INCIA PRIMEIRA CONVERSAO, ATUTO TRIGGER ENABLE, ADIF =0,
-//ADC COMPLETE INTERRUPT ATIVADA, PREESCALER 1:128
+//ADC COMPLETE INTERRUPT ATIVADA, PREESCALER 1:128 f=(16MHz/128)=125KHz
 ADCSRA = 0b10101111;
 
 //COONVERSOR A/D EM MODO FREE RUINNING MODE
@@ -29,20 +32,28 @@ ADCSRA |= (ADSC<<1);
 
 void loop() {
 
-//FLAG DE INTERRUPÇÃO
 interrupts();
+
 do{}while(ADIF==0);
-conv_ad();
+float temperatura = conv_ad();
+Serial.print(temperatura);
 }
 
-void conv_ad(){
+float conv_ad(){
   
   noInterrupts();
   //ADCL PRECISA SER LIDO ANTES DE ADCH(RIGHT ADJUSTED)
   uint16_t low_bits = ADCL;
   uint16_t high_bits = ADCH;
   high_bits = (high_bits<<8); 
+  
   uint16_t conv = high_bits | low_bits;
-  Serial.println(low_bits);  
+  
+  //Fórmula da temperatura
+  float T = (conv/2.586)-252.97;
+  
+  //Limpar FLAG de interrupção
   ADCSRA &= (ADIF<<1);
+
+  return(T);
   }
