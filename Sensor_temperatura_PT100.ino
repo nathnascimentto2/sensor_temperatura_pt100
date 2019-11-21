@@ -1,16 +1,18 @@
-/* 
- *  AUTOR: NATHALIA NASCIMENTO 
- *  DATA : 13/10/2019
- * CONVERSOR AD PARA SENSOR DE TEMPERATURA PT100
- */
+/************************************************************* 
+ *  AQUISIÇÃO DOS DADOS DE TEMPERATURA DO SENSOR PT100       *
+ *  AUTOR: NATHALIA NASCIMENTO                               *
+ *  DATA : 13/10/2019                                        *
+ *  V1.0                                                     * 
+ *************************************************************/
+
 #include<avr/io.h>
 
 void setup() {
-
+  
 Serial.begin(9600);
 
-//CONFIGURAR PINO COMO INPUT
-//DDRB = 
+////CONFIGURAR PINO COMO INPUT
+DDRC = 0; 
 
 //VOLTAGEM DE REFERENCIA A/D 1.1V, AJUSTE PARA DIREITA, ADC0 SELECIONADO
 ADMUX = 0b11000000;
@@ -28,32 +30,33 @@ DIDR0 = 0b00111110;
 
 //INICIA A PRIMEIRA CONVERSÃO
 ADCSRA |= (ADSC<<1);
+
 }
 
 void loop() {
 
-interrupts();
+delay(15);
 
-do{}while(ADIF==0);
-float temperatura = conv_ad();
-Serial.print(temperatura);
+uint16_t temperatura = ler_ad();
+
+//Verificar saida
+Serial.println(temperatura);
+
 }
 
-float conv_ad(){
+int ler_ad(){
   
-  noInterrupts();
-  //ADCL PRECISA SER LIDO ANTES DE ADCH(RIGHT ADJUSTED)
-  uint16_t low_bits = ADCL;
-  uint16_t high_bits = ADCH;
-  high_bits = (high_bits<<8); 
-  
-  uint16_t conv = high_bits | low_bits;
-  
-  //Fórmula da temperatura
-  float T = (conv/2.586)-252.97;
-  
-  //Limpar FLAG de interrupção
-  ADCSRA &= (ADIF<<1);
+//DESAABILITA MODO DE REDUCAO DE CONSUMO
+//PRR &= (PRADC<<0);
 
-  return(T);
-  }
+while (ADIF == 0);
+
+uint16_t low_bits = ADCL; 
+uint16_t high_bits = ADCH;
+uint16_t result = (ADCH<<8) + ADCL;
+
+//DESAABILITA MODO DE REDUCAO DE CONSUMO
+//PRR |= (PRADC<<1);
+
+return result;
+}
