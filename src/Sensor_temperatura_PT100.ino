@@ -19,7 +19,7 @@ CS: Chip Select
 #include <SPI.h>
 #include "SSD1306_SPI.h"
 #include<avr/io.h>
-
+//master
 //#define USE_FRAME_BUFFER
 
 #ifdef USE_FRAME_BUFFER
