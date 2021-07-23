@@ -13,7 +13,6 @@ D0: CLK Clock
 D1: MOSI Data
 RST: Reset
 
-
 DC: Data/Command
 CS: Chip Select
 */
